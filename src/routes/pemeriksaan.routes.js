@@ -1,22 +1,35 @@
-// routes/pemeriksaan.routes.js
 const express = require('express');
 const router = express.Router();
-const controller = require('../controllers/pemeriksaan.controller');
-// const { validatePemeriksaan } = require('../middleware/validators'); // <--- DIHAPUS
-const { mockAuth } = require('../middleware/auth');
 
-// Terapkan middleware autentikasi ke semua rute di file ini
-router.use(mockAuth);
+// Import Controller
+const pemeriksaanController = require('../controllers/pemeriksaan.controller');
 
-// POST /v1/pemeriksaan (Buat Catatan SOAP Baru)
-// Tidak ada validasi di sini, ditangani di controller
-router.post('/', controller.createPemeriksaan);
+// Import Middleware Auth (Pastikan path-nya sesuai dengan struktur folder Anda)
+// Jika belum ada isinya, Anda bisa men-comment baris ini dulu.
+const verifyToken = require('../middleware/auth');
 
-// GET /v1/pemeriksaan/:id (Get Detail Catatan SOAP)
-router.get('/:id', controller.getPemeriksaanById);
+// ==================================================================
+// DEFINISI ROUTES
+// ==================================================================
 
-// PUT /v1/pemeriksaan/:id (Update Catatan SOAP)
-// Tidak ada validasi di sini, ditangani di controller
-router.put('/:id', controller.updatePemeriksaan);
+// Middleware: Lindungi semua route di bawah ini (User harus Login dulu)
+// Sesuai API Spec "security: - BearerAuth: []"
+//router.use(verifyToken); 
+
+// 1. GET / (Opsional/Admin) - Mengambil semua data pemeriksaan
+// Ini menggunakan fungsi yang kita buat di langkah sebelumnya
+router.get('/', pemeriksaanController.getAllPemeriksaan);
+
+// 2. POST / - Membuat Catatan Pemeriksaan SOAP Baru (FR-03)
+// Sesuai API Spec: POST /pemeriksaan
+router.post('/', pemeriksaanController.createPemeriksaan);
+
+// 3. GET /:id - Mengambil Detail Catatan SOAP
+// Sesuai API Spec: GET /pemeriksaan/{id}
+router.get('/:id', pemeriksaanController.getDetailPemeriksaan);
+
+// 4. PUT /:id - Mengupdate Catatan SOAP
+// Sesuai API Spec: PUT /pemeriksaan/{id}
+router.put('/:id', pemeriksaanController.updatePemeriksaan);
 
 module.exports = router;
