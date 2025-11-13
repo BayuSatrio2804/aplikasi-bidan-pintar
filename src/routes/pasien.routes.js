@@ -5,14 +5,14 @@ const router = express.Router();
 const pasienController = require('../controllers/pasien.controller');
 
 // Import Middleware Auth (Opsional, aktifkan jika login sudah siap)
-const verifyToken = require('../middleware/auth');
 
 // ==================================================================
 // DEFINISI ROUTES PASIEN
 // ==================================================================
 
 // Middleware: Semua route pasien butuh login (Security BearerAuth)
-//router.use(verifyToken); 
+const { verifyToken } = require('../middleware/auth');
+router.use(verifyToken); 
 
 // 1. GET / - List semua pasien (mendukung ?search=nama)
 // 

@@ -9,11 +9,13 @@ app.use(express.json());
 // --- Impor Rute ---
 const pemeriksaanRoutes = require('./routes/pemeriksaan.routes');
 const pasienRoutes = require('./routes/pasien.routes');
+const authRoutes = require('./routes/auth.routes');
 
 // --- Gunakan Rute ---
 // Sesuai server URL di API spec: https://api.bidan-digital.com/v1
 app.use('/v1/pemeriksaan', pemeriksaanRoutes);
 app.use('/v1/pasien', pasienRoutes);
+app.use('/v1/auth', authRoutes);
 
 // --- Server Listener ---
 app.listen(PORT, () => {

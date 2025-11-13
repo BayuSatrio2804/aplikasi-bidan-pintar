@@ -1,20 +1,34 @@
 // middleware/auth.js
 
-// Dalam aplikasi nyata, Anda akan memverifikasi JWT (JSON Web Token) di sini.
-const mockAuth = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    // Sesuai (Contoh 401 Unauthorized)
-    return res.status(401).json({ message: 'Akses ditolak. Token tidak ada atau format salah.' });
-  }
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET || 'ganti-dengan-secret-key-yang-kuat'; 
 
-  // const token = authHeader.split(' ')[1];
-  // ... (logika verifikasi token) ...
-  
-  console.log('Mock Auth: Akses diberikan.');
-  // Anggap token valid, lanjutkan ke controller
-  next(); 
+// Middleware Verifikasi JWT
+const verifyToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'Akses ditolak. Token tidak ada atau format salah.' });
+    }
+
+    // Ambil token dari header (hilangkan 'Bearer ')
+    const token = authHeader.split(' ')[1];
+
+    try {
+        // Verifikasi Token
+        const decoded = jwt.verify(token, JWT_SECRET);
+        
+        // Simpan data user dari token ke objek request
+        req.user = decoded;
+        
+        // Lanjutkan ke controller
+        next(); 
+    } catch (error) {
+        // Token tidak valid (expired/salah signature)
+        return res.status(403).json({ message: 'Akses ditolak. Token tidak valid.' });
+    }
 };
 
-module.exports = { mockAuth };
+module.exports = { 
+    verifyToken 
+};
