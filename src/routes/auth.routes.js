@@ -1,15 +1,12 @@
-// routes/auth.routes.js
-
 const express = require('express');
 const router = express.Router();
 
-// Import Controller
-const authController = require('../controllers/auth.controller');
-
-// POST /v1/auth/register
+// Endpoint Publik
 router.post('/register', authController.register);
-
-// POST /v1/auth/login
 router.post('/login', authController.login);
+
+// Endpoint Terlindungi (Membutuhkan Token)
+router.get('/me', verifyToken, authController.getProfile); // Asumsi ada getProfile di controller
+router.put('/me', verifyToken, authController.updateProfile); // Asumsi ada updateProfile di controller
 
 module.exports = router;
