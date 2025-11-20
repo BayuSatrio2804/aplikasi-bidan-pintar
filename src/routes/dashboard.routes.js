@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const laporanController = require('../controllers/laporan.controller');
+const dashboardController = require('../controllers/dashboard.controller');
 const { verifyToken } = require('../middleware/auth'); 
 
-// Lindungi semua route laporan
+// Lindungi semua route dashboard
 router.use(verifyToken); 
 
-router.get('/', laporanController.generateLaporanBulanan); // FR-05
+router.get('/rekap-layanan', dashboardController.getRekapLayanan);
 
 module.exports = router;

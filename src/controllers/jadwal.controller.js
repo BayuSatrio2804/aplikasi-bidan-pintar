@@ -1,11 +1,8 @@
-// src/controllers/jadwal.controller.js
-
 const db = require('../config/database');
 const { v4: uuidv4 } = require('uuid');
 
-// --- 1. GET List & Filter Jadwal (Sesuai Wireframe) ---
+// --- 1. GET List & Filter Jadwal ---
 const listJadwal = async (req, res) => {
-    // Parameter filter dari query string (Sesuai API Spec)
     const { bulan, tahun, layanan } = req.query; 
 
     try {
@@ -21,7 +18,6 @@ const listJadwal = async (req, res) => {
         `;
         let params = [];
 
-        // Logika Filter (Sesuai Wireframe: Bulan, Tahun, Layanan)
         if (bulan && tahun) {
             query += ' AND MONTH(j.tanggal) = ? AND YEAR(j.tanggal) = ?';
             params.push(bulan, tahun);
@@ -31,7 +27,7 @@ const listJadwal = async (req, res) => {
             params.push(layanan);
         }
 
-        query += ' ORDER BY j.tanggal ASC, j.jam_mulai ASC'; // Urutkan berdasarkan tanggal dan jam
+        query += ' ORDER BY j.tanggal ASC, j.jam_mulai ASC';
 
         const [rows] = await db.query(query, params);
 
@@ -40,16 +36,14 @@ const listJadwal = async (req, res) => {
             data: rows
         });
     } catch (error) {
-        console.error(error);
         res.status(500).json({ message: 'Server Error', error: error.message });
     }
 };
 
-// --- 2. POST Buat Jadwal Baru (Sesuai Form Buat/Edit) ---
+// --- 2. POST Buat Jadwal Baru ---
 const createJadwal = async (req, res) => {
     const { id_pasien, id_petugas, jenis_layanan, tanggal, jam_mulai, jam_selesai } = req.body;
     
-    // Validasi Wajib Isi (Sesuai JadwalRequest Schema)
     if (!id_pasien || !id_petugas || !jenis_layanan || !tanggal || !jam_mulai) {
         return res.status(400).json({ 
             message: 'Data wajib tidak lengkap (Pasien, Petugas, Layanan, Tanggal, Jam Mulai).' 
@@ -59,8 +53,6 @@ const createJadwal = async (req, res) => {
     const id_jadwal = uuidv4();
 
     try {
-        // (Opsional) Cek validitas id_pasien dan id_petugas di database
-
         const query = `
             INSERT INTO jadwal 
             (id_jadwal, id_pasien, id_petugas, jenis_layanan, tanggal, jam_mulai, jam_selesai) 
@@ -74,7 +66,6 @@ const createJadwal = async (req, res) => {
             data: { id_jadwal, ...req.body }
         });
     } catch (error) {
-        console.error(error);
         res.status(500).json({ message: 'Gagal membuat jadwal', error: error.message });
     }
 };
@@ -83,7 +74,6 @@ const createJadwal = async (req, res) => {
 const getDetailJadwal = async (req, res) => {
     const { id } = req.params;
     try {
-        // Query Join untuk mendapatkan nama pasien/petugas (Sesuai Jadwal Schema)
         const query = `
             SELECT 
                 j.*,
@@ -115,7 +105,6 @@ const updateJadwal = async (req, res) => {
     const { id } = req.params;
     const { id_pasien, id_petugas, jenis_layanan, tanggal, jam_mulai, jam_selesai } = req.body;
 
-    // Validasi Wajib Isi
     if (!id_pasien || !id_petugas || !jenis_layanan || !tanggal || !jam_mulai) {
         return res.status(400).json({ 
             message: 'Data wajib tidak lengkap (Pasien, Petugas, Layanan, Tanggal, Jam Mulai).' 
@@ -123,7 +112,6 @@ const updateJadwal = async (req, res) => {
     }
 
     try {
-        // Cek apakah data ada
         const [check] = await db.query('SELECT id_jadwal FROM jadwal WHERE id_jadwal = ?', [id]);
         if (check.length === 0) {
             return res.status(404).json({ message: 'Jadwal tidak ditemukan' });
@@ -157,7 +145,7 @@ const deleteJadwal = async (req, res) => {
             return res.status(404).json({ message: 'Jadwal tidak ditemukan' });
         }
 
-        res.status(204).json({ message: 'Jadwal berhasil dihapus' }); // 204 No Content for successful deletion
+        res.status(204).json({ message: 'Jadwal berhasil dihapus' });
     } catch (error) {
         res.status(500).json({ message: 'Gagal menghapus jadwal', error: error.message });
     }
