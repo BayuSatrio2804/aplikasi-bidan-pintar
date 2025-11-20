@@ -1,12 +1,16 @@
 const express = require('express');
 const router = express.Router();
+const authController = require('../controllers/auth.controller');
+const { verifyToken } = require('../middleware/auth');
+const validator = require('../middleware/validator.middleware');
+const { RegisterSchema, LoginSchema, UpdateProfileSchema } = require('../validators/auth.validator');
 
 // Endpoint Publik
-router.post('/register', authController.register);
-router.post('/login', authController.login);
+router.post('/register', validator(RegisterSchema), authController.register);
+router.post('/login', validator(LoginSchema), authController.login);
 
-// Endpoint Terlindungi (Membutuhkan Token)
-router.get('/me', verifyToken, authController.getProfile); // Asumsi ada getProfile di controller
-router.put('/me', verifyToken, authController.updateProfile); // Asumsi ada updateProfile di controller
+// Endpoint Terlindungi
+router.get('/me', verifyToken, authController.getProfile); 
+router.put('/me', verifyToken, validator(UpdateProfileSchema), authController.updateProfile);
 
 module.exports = router;
