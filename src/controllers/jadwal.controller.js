@@ -64,13 +64,16 @@ const deleteJadwal = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const result = await jadwalService.deleteJadwal(id);
+        const [result] = await db.query('DELETE FROM jadwal WHERE id_jadwal = ?', [id]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Jadwal tidak ditemukan' });
         }
-
-        res.status(204).end(); // 204 No Content for successful deletion
+        res.status(200).json({ 
+            message: 'Jadwal berhasil dihapus',
+            id_jadwal: id
+        });
+        
     } catch (error) {
         res.status(500).json({ message: 'Gagal menghapus jadwal', error: error.message });
     }
