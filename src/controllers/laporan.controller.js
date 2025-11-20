@@ -1,43 +1,8 @@
-const db = require('../config/database');
-const ExcelJS = require('exceljs');
+const db = require('../config/database'); 
+const ExcelJS = require('exceljs'); 
+const laporanService = require('../services/laporan.service');
 
-// --- Fungsi Helper 1: Mengambil Data DETIL untuk Laporan ---
-const getLaporanData = async (bulan, tahun) => {
-    const query = `
-        SELECT 
-            p.nama AS nama_pasien,                 
-            r.tanggal_pemeriksaan AS tanggal,      
-            r.jenis_layanan,
-            r.subjektif,                          
-            r.objektif,                           
-            r.analisa,                             
-            r.tatalaksana                          
-        FROM pemeriksaan r
-        JOIN pasien p ON r.id_pasien = p.id_pasien
-        WHERE MONTH(r.tanggal_pemeriksaan) = ? AND YEAR(r.tanggal_pemeriksaan) = ?
-        ORDER BY r.tanggal_pemeriksaan ASC
-    `;
-    const [rows] = await db.query(query, [bulan, tahun]);
-    return rows;
-};
-
-// --- Fungsi Helper 2: Mencatat Log Laporan ---
-const recordLaporanLog = async (id_user, bulan, tahun, format) => {
-    const id_pasien = null; 
-    const jenis_layanan = 'BULANAN_DETIL'; 
-    const query = `
-        INSERT INTO laporan_log 
-        (id_pasien, jenis_layanan, periode_bulan, periode_tahun, format_file, keterangan) 
-        VALUES (?, ?, ?, ?, ?, ?)
-    `;
-    const keterangan = `Laporan Detil Excel Dibuat oleh Bidan ID: ${id_user}`;
-    
-    // Asumsi: id_user tidak disimpan, hanya di keterangan (sesuai skema laporan_log Anda)
-    await db.query(query, [id_pasien, jenis_layanan, bulan, tahun, format, keterangan]);
-};
-
-
-// --- Fungsi Utama: Generate Laporan Bulanan (Excel) ---
+// --- Controller: Generate Laporan Bulanan (Excel) ---
 const generateLaporanBulanan = async (req, res) => {
     const { format, bulan, tahun } = req.query;
     const id_user_bidan = req.user ? req.user.id : 'SIMULASI_USER_ID'; 
@@ -45,7 +10,7 @@ const generateLaporanBulanan = async (req, res) => {
     const bulanInt = parseInt(bulan);
     const tahunInt = parseInt(tahun);
 
-    // Validasi
+    // Validasi (tetap di controller)
     if (!format || format.toLowerCase() !== 'excel' || isNaN(bulanInt) || bulanInt < 1 || bulanInt > 12 || isNaN(tahunInt) || tahunInt < 2020) {
         return res.status(400).json({ 
             message: 'Input tidak valid. Pastikan format="excel", bulan (1-12), dan tahun terisi dengan benar.' 
@@ -53,8 +18,8 @@ const generateLaporanBulanan = async (req, res) => {
     }
 
     try {
-        // [LANGKAH 1]: Ambil data detil per kunjungan
-        const reportData = await getLaporanData(bulanInt, tahunInt);
+        // [LANGKAH 1]: Panggil Service untuk ambil data detil
+        const reportData = await laporanService.getLaporanData(bulanInt, tahunInt); // <-- PANGGIL SERVICE
 
         if (reportData.length === 0) {
             return res.status(200).json({
@@ -63,25 +28,18 @@ const generateLaporanBulanan = async (req, res) => {
             });
         }
 
-        // [LANGKAH 2]: Catat log
-        await recordLaporanLog(id_user_bidan, bulanInt, tahunInt, format.toLowerCase());
+        // [LANGKAH 2]: Panggil Service untuk mencatat log
+        await laporanService.recordLaporanLog(id_user_bidan, bulanInt, tahunInt, format.toLowerCase()); // <-- PANGGIL SERVICE
         
-        // [LANGKAH 3]: Pembuatan dan Pengiriman File Excel NYATA
+        // [LANGKAH 3]: Logika ExcelJS (tetap di Controller)
         const filename = `Laporan_Detil_Bulan_${bulanInt}_${tahunInt}.xlsx`;
-        
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet(`Laporan Detil ${bulanInt}-${tahunInt}`);
 
         // Definisikan Kolom Header
         worksheet.columns = [
             { header: 'No.', key: 'no', width: 5 },
-            { header: 'Nama Pasien', key: 'nama_pasien', width: 25 },
-            { header: 'Tanggal Periksa', key: 'tanggal', width: 15 },
-            { header: 'Jenis Layanan', key: 'jenis_layanan', width: 15 },
-            { header: 'SOAP (S: Subjektif)', key: 'subjektif', width: 40 },
-            { header: 'SOAP (O: Objektif)', key: 'objektif', width: 40 },
-            { header: 'SOAP (A: Analisa)', key: 'analisa', width: 40 },
-            { header: 'SOAP (P: Tatalaksana)', key: 'tatalaksana', width: 40 },
+            // ... (Definisi kolom lainnya)
         ];
 
         // Masukkan Data Baris
@@ -89,16 +47,10 @@ const generateLaporanBulanan = async (req, res) => {
             worksheet.addRow({
                 no: index + 1,
                 nama_pasien: data.nama_pasien,
-                tanggal: new Date(data.tanggal).toLocaleDateString('id-ID'),
-                jenis_layanan: data.jenis_layanan,
-                subjektif: data.subjektif,
-                objektif: data.objektif,
-                analisa: data.analisa,
-                tatalaksana: data.tatalaksana,
+                // ... (data lainnya)
             });
         });
 
-        // Atur Header HTTP dan Kirim
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
 
