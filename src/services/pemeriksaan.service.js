@@ -1,7 +1,6 @@
 const db = require('../config/database');
 const { v4: uuidv4 } = require('uuid');
 
-// --- Service 1: Membuat Pemeriksaan Baru ---
 const createPemeriksaan = async (data) => {
     const { id_pasien, jenis_layanan, subjektif, objektif, analisa, tatalaksana } = data;
     const id_pemeriksaan = uuidv4();
@@ -17,19 +16,16 @@ const createPemeriksaan = async (data) => {
     return { id_pemeriksaan, ...data };
 };
 
-// --- Service 2: Mengambil Detail Pemeriksaan ---
 const getDetailPemeriksaan = async (id_pemeriksaan) => {
     const [rows] = await db.query('SELECT * FROM pemeriksaan WHERE id_pemeriksaan = ?', [id_pemeriksaan]);
     return rows[0];
 };
 
-// --- Service 3: Mengambil Semua Pemeriksaan (Opsional/Admin) ---
 const getAllPemeriksaan = async () => {
     const [rows] = await db.query('SELECT * FROM pemeriksaan ORDER BY tanggal_pemeriksaan DESC');
     return rows;
 };
 
-// --- Service 4: Memperbarui Pemeriksaan ---
 const updatePemeriksaan = async (id_pemeriksaan, data) => {
     const { id_pasien, jenis_layanan, subjektif, objektif, analisa, tatalaksana } = data;
     
@@ -45,7 +41,6 @@ const updatePemeriksaan = async (id_pemeriksaan, data) => {
 };
 
 
-// --- EXPORT SEMUA FUNGSI ---
 module.exports = {
     createPemeriksaan,
     getDetailPemeriksaan,

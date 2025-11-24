@@ -1,6 +1,6 @@
 const pasienService = require('../services/pasien.service');
 
-// 1. GET List Pasien & Search
+// 1. GET List Pasien & Search (FR-04)
 const getAllPasien = async (req, res) => {
     try {
         const { search } = req.query;
@@ -11,7 +11,7 @@ const getAllPasien = async (req, res) => {
     }
 };
 
-// 2. POST Tambah Pasien Baru (Validasi ditangani oleh Middleware)
+// 2. POST Tambah Pasien Baru (FR-02)
 const createPasien = async (req, res) => {
     try {
         const newPasien = await pasienService.createPasien(req.body); 
@@ -38,11 +38,10 @@ const getPasienById = async (req, res) => {
     }
 };
 
-// 4. PUT Update Pasien (Validasi ditangani oleh Middleware)
+// 4. PUT Update Pasien (FR-02)
 const updatePasien = async (req, res) => {
     const { id } = req.params;
     try {
-        // Pengecekan keberadaan Pasien (sebelum update)
         const existingPasien = await pasienService.getPasienById(id);
         if (!existingPasien) {
             return res.status(404).json({ message: 'Pasien tidak ditemukan. Gagal update.' });
@@ -59,7 +58,7 @@ const updatePasien = async (req, res) => {
     }
 };
 
-// 5. DELETE Hapus Pasien
+// 5. DELETE Hapus Pasien (FR-02)
 const deletePasien = async (req, res) => {
     const { id } = req.params;
     try {

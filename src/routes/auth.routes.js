@@ -1,3 +1,4 @@
+// src/routes/auth.routes.js
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth.controller');
@@ -7,7 +8,7 @@ const { RegisterSchema, LoginSchema, UpdateProfileSchema } = require('../validat
 
 // Endpoint Publik
 router.post('/register', validator(RegisterSchema), authController.register);
-router.post('/login', validator(LoginSchema), authController.login);
+router.post('/login', validator(LoginSchema), authController.login); // FR-01
 
 // Endpoint Terlindungi
 router.get('/me', verifyToken, authController.getProfile); 

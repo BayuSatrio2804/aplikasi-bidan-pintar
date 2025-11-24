@@ -5,6 +5,7 @@ const getAllPasien = async (search) => {
     let query = 'SELECT * FROM pasien';
     let params = [];
     if (search) {
+        // FR-04: Pencarian berdasarkan Nama atau NIK
         query += ' WHERE nama LIKE ? OR nik LIKE ?';
         params.push(`%${search}%`, `%${search}%`);
     }
@@ -39,6 +40,7 @@ const deletePasien = async (id) => {
 };
 
 const getRiwayatPasien = async (id) => {
+    // FR-08: Mendapatkan semua catatan pemeriksaan untuk pasien tertentu
     const query = `SELECT * FROM pemeriksaan WHERE id_pasien = ? ORDER BY tanggal_pemeriksaan DESC`;
     const [rows] = await db.query(query, [id]);
     return rows;

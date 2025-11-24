@@ -1,5 +1,4 @@
 const validator = (schema) => (req, res, next) => {
-    // Validasi req.body menggunakan skema Joi yang diberikan
     const { error } = schema.validate(req.body, { abortEarly: false });
     
     if (error) {

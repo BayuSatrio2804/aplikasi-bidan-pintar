@@ -16,7 +16,7 @@ const UpdateProfileSchema = Joi.object({
     nama_lengkap: Joi.string().optional(),
     username: Joi.string().min(3).optional(),
     email: Joi.string().email().optional(),
-    password: Joi.string().min(6).optional(), // Opsional jika hanya update nama/email
+    password: Joi.string().min(6).optional(), 
 });
 
 module.exports = {

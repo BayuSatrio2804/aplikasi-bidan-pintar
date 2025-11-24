@@ -1,5 +1,5 @@
 const db = require('../config/database');
-const LAYANAN_DIPANTAU = ['ANC', 'Persalinan', 'Nifas', 'KB', 'Imunisasi'];
+const { VALID_LAYANAN } = require('../utils/constant');
 
 const getRekapLayanan = async (tahun) => {
     let params = [];
@@ -11,7 +11,7 @@ const getRekapLayanan = async (tahun) => {
         FROM pemeriksaan
         WHERE jenis_layanan IN (?)
     `;
-    params.push(LAYANAN_DIPANTAU);
+    params.push(VALID_LAYANAN);
 
     if (tahun) {
         query += ' AND YEAR(tanggal_pemeriksaan) = ?';

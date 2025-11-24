@@ -1,8 +1,7 @@
 const db = require('../config/database');
 
-// --- Service 1: Mengambil Data Detil untuk Laporan Excel ---
 const getLaporanData = async (bulan, tahun) => {
-    // Query yang sama yang sebelumnya ada di Controller
+    // Query untuk mengambil semua data detil Pemeriksaan yang akan diekspor (FR-05)
     const query = `
         SELECT 
             p.nama AS nama_pasien,                 
@@ -21,8 +20,8 @@ const getLaporanData = async (bulan, tahun) => {
     return rows;
 };
 
-// --- Service 2: Mencatat Log Laporan (FR-05) ---
 const recordLaporanLog = async (id_user, bulan, tahun, format) => {
+    // Mencatat log pembuatan laporan (FR-05)
     const id_pasien = null; 
     const jenis_layanan = 'BULANAN_DETIL'; 
     const query = `

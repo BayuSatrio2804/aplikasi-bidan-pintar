@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const VALID_LAYANAN = ["ANC", "KB", "Imunisasi", "Persalinan", "Nifas"];
+const { VALID_LAYANAN } = require('../utils/constant');
 
 const PemeriksaanSchema = Joi.object({
     id_pasien: Joi.string().uuid().required(),
