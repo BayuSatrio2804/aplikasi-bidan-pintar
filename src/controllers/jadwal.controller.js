@@ -1,6 +1,5 @@
-// src/controllers/jadwal.controller.js
-
 const jadwalService = require('../services/jadwal.service');
+const db = require('../config/database');
 
 // 1. GET List & Filter Jadwal
 const listJadwal = async (req, res) => {
@@ -15,7 +14,7 @@ const listJadwal = async (req, res) => {
     }
 };
 
-// 2. POST Buat Jadwal Baru (Validasi ditangani oleh Middleware)
+// 2. POST Buat Jadwal Baru
 const createJadwal = async (req, res) => {
     try {
         const newJadwal = await jadwalService.createJadwal(req.body);
@@ -42,7 +41,7 @@ const getDetailJadwal = async (req, res) => {
     }
 };
 
-// 4. PUT Update Jadwal (Validasi ditangani oleh Middleware)
+// 4. PUT Update Jadwal
 const updateJadwal = async (req, res) => {
     const { id } = req.params;
     try {
@@ -64,8 +63,8 @@ const deleteJadwal = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const [result] = await db.query('DELETE FROM jadwal WHERE id_jadwal = ?', [id]);
-
+        const result = await jadwalService.deleteJadwal(id); // Dipindahkan ke Service
+        
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Jadwal tidak ditemukan' });
         }

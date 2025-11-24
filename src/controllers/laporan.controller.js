@@ -1,16 +1,16 @@
-const db = require('../config/database'); 
 const ExcelJS = require('exceljs'); 
 const laporanService = require('../services/laporan.service');
 
 // --- Controller: Generate Laporan Bulanan (Excel) ---
 const generateLaporanBulanan = async (req, res) => {
     const { format, bulan, tahun } = req.query;
+    // req.user.id didapatkan dari middleware verifyToken
     const id_user_bidan = req.user ? req.user.id : 'SIMULASI_USER_ID'; 
 
     const bulanInt = parseInt(bulan);
     const tahunInt = parseInt(tahun);
 
-    // Validasi
+    // Validasi dasar
     if (!format || format.toLowerCase() !== 'excel' || isNaN(bulanInt) || bulanInt < 1 || bulanInt > 12 || isNaN(tahunInt) || tahunInt < 2020) {
         return res.status(400).json({ 
             message: 'Input tidak valid. Pastikan format="excel", bulan (1-12), dan tahun terisi dengan benar.' 
@@ -27,14 +27,14 @@ const generateLaporanBulanan = async (req, res) => {
             });
         }
 
+        // Catat ke log laporan (FR-05)
         await laporanService.recordLaporanLog(id_user_bidan, bulanInt, tahunInt, format.toLowerCase());
         
-        // --- Implementasi ExcelJS Nyata ---
+        // --- Implementasi ExcelJS ---
         const filename = `Laporan_Detil_Bulan_${bulanInt}_${tahunInt}.xlsx`;
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet(`Laporan Detil ${bulanInt}-${tahunInt}`);
 
-        // PERBAIKAN: Definisi Kolom Header yang Lengkap
         worksheet.columns = [
             { header: 'No.', key: 'no', width: 5 },
             { header: 'Nama Pasien', key: 'nama_pasien', width: 25 },
@@ -46,7 +46,6 @@ const generateLaporanBulanan = async (req, res) => {
             { header: 'SOAP (P: Tatalaksana)', key: 'tatalaksana', width: 40 },
         ];
 
-        // Masukkan Data Baris
         reportData.forEach((data, index) => {
             worksheet.addRow({
                 no: index + 1,

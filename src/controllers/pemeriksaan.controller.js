@@ -1,6 +1,5 @@
 const pemeriksaanService = require('../services/pemeriksaan.service');
 
-// 1. GET List Semua Pemeriksaan
 const getAllPemeriksaan = async (req, res) => {
     try {
         const data = await pemeriksaanService.getAllPemeriksaan();
@@ -10,7 +9,7 @@ const getAllPemeriksaan = async (req, res) => {
     }
 };
 
-// 2. POST Buat Catatan Pemeriksaan SOAP Baru (Validasi ditangani oleh Middleware)
+// 2. POST Buat Catatan Pemeriksaan SOAP Baru (FR-03)
 const createPemeriksaan = async (req, res) => {
     try {
         const newPemeriksaan = await pemeriksaanService.createPemeriksaan(req.body);
@@ -20,7 +19,6 @@ const createPemeriksaan = async (req, res) => {
             data: newPemeriksaan
         });
     } catch (error) {
-        // Asumsi error validasi id_pasien (404) ditangani oleh Service
         res.status(500).json({ message: 'Gagal menyimpan data pemeriksaan.', error: error.message });
     }
 };
@@ -39,7 +37,7 @@ const getDetailPemeriksaan = async (req, res) => {
     }
 };
 
-// 4. PUT Update Catatan SOAP (Validasi ditangani oleh Middleware)
+// 4. PUT Update Catatan SOAP
 const updatePemeriksaan = async (req, res) => {
     const { id } = req.params;
     try {

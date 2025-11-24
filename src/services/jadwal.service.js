@@ -14,6 +14,7 @@ const listJadwal = async (bulan, tahun, layanan) => {
     `;
     let params = [];
 
+    // Filter berdasarkan bulan, tahun, dan layanan
     if (bulan && tahun) {
         query += ' AND MONTH(j.tanggal) = ? AND YEAR(j.tanggal) = ?';
         params.push(bulan, tahun);

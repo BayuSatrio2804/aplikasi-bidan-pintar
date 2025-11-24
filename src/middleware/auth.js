@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET || 'your-very-strong-secret-key-12345'; 
+const { JWT_SECRET } = require('../utils/constant');
 
 const verifyToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -12,8 +12,6 @@ const verifyToken = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        
-        // Simpan data user dari token (id, username) ke req.user
         req.user = decoded; 
         
         next(); 

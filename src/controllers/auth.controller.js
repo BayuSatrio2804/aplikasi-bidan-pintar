@@ -2,15 +2,12 @@ const db = require('../config/database');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
-const authService = require('../services/auth.service'); // Import Service
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-very-strong-secret-key-12345';
-const SALT_ROUNDS = 10;
+const authService = require('../services/auth.service'); 
+const { JWT_SECRET, SALT_ROUNDS } = require('../utils/constant'); // Ambil dari utils
 
 // --- Register ---
 const register = async (req, res) => {
     const { nama_lengkap, username, email, password } = req.body;
-    // Validasi input ditangani oleh validator middleware
 
     try {
         const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
@@ -39,10 +36,9 @@ const register = async (req, res) => {
 
 // --- Login ---
 const login = async (req, res) => {
-    const { identifier, password } = req.body; // Menerima identifier (username/email)
+    const { identifier, password } = req.body; 
 
     try {
-        // Cari user berdasarkan username atau email
         const userByUsername = await authService.getUserByUsername(identifier);
         const userByEmail = await authService.getUserByEmail(identifier);
         
@@ -80,7 +76,6 @@ const getProfile = async (req, res) => {
     const userId = req.user.id; 
 
     try {
-        // Panggil Service
         const user = await authService.getUserById(userId); 
 
         if (!user) {
@@ -106,7 +101,6 @@ const updateProfile = async (req, res) => {
             hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
         }
         
-        // Panggil Service
         const updatedData = await authService.updateProfile(userId, req.body, hashedPassword);
 
         res.status(200).json({ message: 'Profil berhasil diperbarui', data: updatedData });

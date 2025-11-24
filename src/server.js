@@ -1,7 +1,7 @@
-// server.js
 const express = require('express');
 const app = express();
 require('dotenv').config();
+require('./config/database'); // Memuat konfigurasi database
 const PORT = process.env.PORT || 3000;
 
 // Middleware untuk membaca JSON body
@@ -13,16 +13,16 @@ const pasienRoutes = require('./routes/pasien.routes');
 const pemeriksaanRoutes = require('./routes/pemeriksaan.routes');
 const jadwalRoutes = require('./routes/jadwal.routes');
 const laporanRoutes = require('./routes/laporan.routes');
-const dashboardRoutes = require('./routes/dashboard.routes'); // Dashboard Routes
+const dashboardRoutes = require('./routes/dashboard.routes'); 
 
 // --- Gunakan Rute ---
-// Sesuai server URL di API spec: https://api.bidan-digital.com/v1
+// Server URL di API spec: https://api.bidan-digital.com/v1
 app.use('/v1/auth', authRoutes);
 app.use('/v1/pasien', pasienRoutes);
 app.use('/v1/pemeriksaan', pemeriksaanRoutes);
 app.use('/v1/jadwal', jadwalRoutes);
 app.use('/v1/laporan', laporanRoutes);
-app.use('/v1/dashboard', dashboardRoutes); // Tambahkan Dashboard
+app.use('/v1/dashboard', dashboardRoutes); 
 
 // --- Server Listener ---
 app.listen(PORT, () => {

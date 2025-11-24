@@ -3,7 +3,6 @@ const router = express.Router();
 const laporanController = require('../controllers/laporan.controller');
 const { verifyToken } = require('../middleware/auth'); 
 
-// Lindungi semua route laporan
 router.use(verifyToken); 
 
 router.get('/', laporanController.generateLaporanBulanan); // FR-05
