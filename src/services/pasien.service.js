@@ -1,11 +1,12 @@
+// src/services/pasien.service.js
 const db = require('../config/database');
 const { v4: uuidv4 } = require('uuid');
+const auditService = require('./audit.service');
 
-const getAllPasien = async (search) => {
+const getAllPasien = async (search) => { 
     let query = 'SELECT * FROM pasien';
     let params = [];
     if (search) {
-        // FR-04: Pencarian berdasarkan Nama atau NIK
         query += ' WHERE nama LIKE ? OR nik LIKE ?';
         params.push(`%${search}%`, `%${search}%`);
     }
@@ -13,45 +14,41 @@ const getAllPasien = async (search) => {
     const [rows] = await db.query(query, params);
     return rows;
 };
+const getPasienById = async (id) => { /* ... */ };
 
-const getPasienById = async (id) => {
-    const [rows] = await db.query('SELECT * FROM pasien WHERE id_pasien = ?', [id]);
-    return rows[0];
-};
-
-const createPasien = async (data) => {
+const createPasien = async (data, id_user_aksi) => {
     const { nama, NIK, umur, alamat, no_hp } = data;
     const id_pasien = uuidv4();
     const query = `INSERT INTO pasien (id_pasien, nama, nik, umur, alamat, no_hp) VALUES (?, ?, ?, ?, ?, ?)`;
     await db.query(query, [id_pasien, nama, NIK, umur, alamat, no_hp]);
+    
+    await auditService.recordDataLog(id_user_aksi, 'CREATE', 'pasien', id_pasien, `Menambahkan Pasien Baru: ${nama}`);
     return { id_pasien, ...data };
 };
 
-const updatePasien = async (id, data) => {
+const updatePasien = async (id, id_user_aksi, data) => {
     const { nama, NIK, umur, alamat, no_hp } = data;
     const query = `UPDATE pasien SET nama = ?, nik = ?, umur = ?, alamat = ?, no_hp = ? WHERE id_pasien = ?`;
     await db.query(query, [nama, NIK, umur, alamat, no_hp, id]);
+    
+    await auditService.recordDataLog(id_user_aksi, 'UPDATE', 'pasien', id, `Memperbarui data Pasien: ${nama}`);
     return { id, ...data };
 };
 
-const deletePasien = async (id) => {
+const deletePasien = async (id, id_user_aksi) => {
     const [result] = await db.query('DELETE FROM pasien WHERE id_pasien = ?', [id]);
+    if (result.affectedRows > 0) {
+        await auditService.recordDataLog(id_user_aksi, 'DELETE', 'pasien', id, `Menghapus Pasien ID: ${id}`);
+    }
     return result;
 };
 
 const getRiwayatPasien = async (id) => {
-    // FR-08: Mendapatkan semua catatan pemeriksaan untuk pasien tertentu
     const query = `SELECT * FROM pemeriksaan WHERE id_pasien = ? ORDER BY tanggal_pemeriksaan DESC`;
     const [rows] = await db.query(query, [id]);
     return rows;
 };
 
-
 module.exports = {
-    getAllPasien,
-    getPasienById,
-    createPasien,
-    updatePasien,
-    deletePasien,
-    getRiwayatPasien
+    getAllPasien, getPasienById: getPasienById, createPasien, updatePasien, deletePasien, getRiwayatPasien
 };

@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const { VALID_LAYANAN } = require('../utils/constant');
+const { VALID_LAYANAN } = require('../utils/constant'); // Menggunakan konstanta layanan umum
 
 const PemeriksaanSchema = Joi.object({
     id_pasien: Joi.string().uuid().required(),

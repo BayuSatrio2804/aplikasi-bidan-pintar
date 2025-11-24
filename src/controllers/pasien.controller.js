@@ -1,6 +1,6 @@
+// src/controllers/pasien.controller.js
 const pasienService = require('../services/pasien.service');
 
-// 1. GET List Pasien & Search (FR-04)
 const getAllPasien = async (req, res) => {
     try {
         const { search } = req.query;
@@ -11,10 +11,10 @@ const getAllPasien = async (req, res) => {
     }
 };
 
-// 2. POST Tambah Pasien Baru (FR-02)
 const createPasien = async (req, res) => {
     try {
-        const newPasien = await pasienService.createPasien(req.body); 
+        const id_user_aksi = req.user.id;
+        const newPasien = await pasienService.createPasien(req.body, id_user_aksi); 
         res.status(201).json({ message: 'Pasien berhasil ditambahkan', data: newPasien });
     } catch (error) {
         if (error.code === 'ER_DUP_ENTRY') {
@@ -24,21 +24,6 @@ const createPasien = async (req, res) => {
     }
 };
 
-// 3. GET Detail Satu Pasien
-const getPasienById = async (req, res) => {
-    const { id } = req.params;
-    try {
-        const data = await pasienService.getPasienById(id);
-        if (!data) {
-            return res.status(404).json({ message: 'Pasien tidak ditemukan' });
-        }
-        res.status(200).json({ message: 'Detail pasien ditemukan', data });
-    } catch (error) {
-        res.status(500).json({ message: 'Server Error', error: error.message });
-    }
-};
-
-// 4. PUT Update Pasien (FR-02)
 const updatePasien = async (req, res) => {
     const { id } = req.params;
     try {
@@ -47,7 +32,8 @@ const updatePasien = async (req, res) => {
             return res.status(404).json({ message: 'Pasien tidak ditemukan. Gagal update.' });
         }
 
-        const updatedPasien = await pasienService.updatePasien(id, req.body);
+        const id_user_aksi = req.user.id;
+        const updatedPasien = await pasienService.updatePasien(id, id_user_aksi, req.body);
         
         res.status(200).json({ message: 'Data pasien berhasil diperbarui', data: updatedPasien });
     } catch (error) {
@@ -58,11 +44,11 @@ const updatePasien = async (req, res) => {
     }
 };
 
-// 5. DELETE Hapus Pasien (FR-02)
 const deletePasien = async (req, res) => {
     const { id } = req.params;
     try {
-        const result = await pasienService.deletePasien(id);
+        const id_user_aksi = req.user.id;
+        const result = await pasienService.deletePasien(id, id_user_aksi);
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Pasien tidak ditemukan. Gagal hapus.' });
         }
@@ -72,7 +58,6 @@ const deletePasien = async (req, res) => {
     }
 };
 
-// 6. GET Riwayat Pemeriksaan Pasien (FR-08)
 const getRiwayatPasien = async (req, res) => {
     const { id } = req.params;
     try {
@@ -91,11 +76,17 @@ const getRiwayatPasien = async (req, res) => {
     }
 };
 
-module.exports = {
-    getAllPasien,
-    createPasien,
-    getPasienById,
-    updatePasien,
-    deletePasien,
-    getRiwayatPasien
+const getPasienById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const pasien = await pasienService.getPasienById(id);
+        if (!pasien) {
+            return res.status(404).json({ message: 'Pasien tidak ditemukan.' });
+        }
+        res.status(200).json({ message: 'Berhasil mengambil data pasien', data: pasien });
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
 };
+
+module.exports = { getAllPasien, createPasien, getPasienById, updatePasien, deletePasien, getRiwayatPasien };
