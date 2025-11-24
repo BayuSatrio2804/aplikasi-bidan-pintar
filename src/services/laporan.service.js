@@ -1,16 +1,13 @@
+// src/services/laporan.service.js
 const db = require('../config/database');
 
 const getLaporanData = async (bulan, tahun) => {
-    // Query untuk mengambil semua data detil Pemeriksaan yang akan diekspor (FR-05)
     const query = `
         SELECT 
             p.nama AS nama_pasien,                 
             r.tanggal_pemeriksaan AS tanggal,      
             r.jenis_layanan,
-            r.subjektif,                          
-            r.objektif,                           
-            r.analisa,                             
-            r.tatalaksana                          
+            r.subjektif, r.objektif, r.analisa, r.tatalaksana                          
         FROM pemeriksaan r
         JOIN pasien p ON r.id_pasien = p.id_pasien
         WHERE MONTH(r.tanggal_pemeriksaan) = ? AND YEAR(r.tanggal_pemeriksaan) = ?
@@ -21,7 +18,6 @@ const getLaporanData = async (bulan, tahun) => {
 };
 
 const recordLaporanLog = async (id_user, bulan, tahun, format) => {
-    // Mencatat log pembuatan laporan (FR-05)
     const id_pasien = null; 
     const jenis_layanan = 'BULANAN_DETIL'; 
     const query = `

@@ -13,6 +13,7 @@ const LoginSchema = Joi.object({
 });
 
 const UpdateProfileSchema = Joi.object({
+    // Semua optional karena tujuannya hanya memperbarui sebagian data
     nama_lengkap: Joi.string().optional(),
     username: Joi.string().min(3).optional(),
     email: Joi.string().email().optional(),

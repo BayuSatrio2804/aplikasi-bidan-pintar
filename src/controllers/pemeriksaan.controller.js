@@ -1,3 +1,4 @@
+// src/controllers/pemeriksaan.controller.js
 const pemeriksaanService = require('../services/pemeriksaan.service');
 
 const getAllPemeriksaan = async (req, res) => {
@@ -9,10 +10,10 @@ const getAllPemeriksaan = async (req, res) => {
     }
 };
 
-// 2. POST Buat Catatan Pemeriksaan SOAP Baru (FR-03)
 const createPemeriksaan = async (req, res) => {
     try {
-        const newPemeriksaan = await pemeriksaanService.createPemeriksaan(req.body);
+        const id_user_aksi = req.user.id;
+        const newPemeriksaan = await pemeriksaanService.createPemeriksaan(req.body, id_user_aksi);
 
         res.status(201).json({
             message: 'Catatan pemeriksaan berhasil disimpan.',
@@ -23,7 +24,6 @@ const createPemeriksaan = async (req, res) => {
     }
 };
 
-// 3. GET Detail Catatan SOAP
 const getDetailPemeriksaan = async (req, res) => {
     const { id } = req.params;
     try {
@@ -31,13 +31,12 @@ const getDetailPemeriksaan = async (req, res) => {
         if (!data) {
             return res.status(404).json({ message: 'Data pemeriksaan tidak ditemukan' });
         }
-        res.status(200).json({ message: 'Detail catatan SOAP ditemukan', data });
+        res.status(200).json({ message: 'Detail pemeriksaan berhasil diambil', data });
     } catch (error) {
         res.status(500).json({ message: 'Server Error', error: error.message });
     }
 };
 
-// 4. PUT Update Catatan SOAP
 const updatePemeriksaan = async (req, res) => {
     const { id } = req.params;
     try {
@@ -46,7 +45,8 @@ const updatePemeriksaan = async (req, res) => {
             return res.status(404).json({ message: 'Data pemeriksaan tidak ditemukan' });
         }
 
-        const updatedPemeriksaan = await pemeriksaanService.updatePemeriksaan(id, req.body);
+        const id_user_aksi = req.user.id;
+        const updatedPemeriksaan = await pemeriksaanService.updatePemeriksaan(id, id_user_aksi, req.body);
 
         res.status(200).json({ message: 'Catatan SOAP berhasil diperbarui.', data: updatedPemeriksaan });
     } catch (error) {
@@ -54,9 +54,4 @@ const updatePemeriksaan = async (req, res) => {
     }
 };
 
-module.exports = {
-    getAllPemeriksaan,
-    createPemeriksaan,
-    getDetailPemeriksaan,
-    updatePemeriksaan
-};
+module.exports = { getAllPemeriksaan, createPemeriksaan, getDetailPemeriksaan, updatePemeriksaan };

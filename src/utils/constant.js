@@ -1,4 +1,4 @@
-const VALID_LAYANAN = ["ANC", "KB", "Imunisasi", "Persalinan", "Nifas"];
+const VALID_LAYANAN = ["ANC", "KB", "Imunisasi", "Persalinan", "Kunjungan Pasien"]; 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-very-strong-secret-key-12345';
 const SALT_ROUNDS = 10;
 

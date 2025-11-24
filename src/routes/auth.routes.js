@@ -8,7 +8,7 @@ const { RegisterSchema, LoginSchema, UpdateProfileSchema } = require('../validat
 
 // Endpoint Publik
 router.post('/register', validator(RegisterSchema), authController.register);
-router.post('/login', validator(LoginSchema), authController.login); // FR-01
+router.post('/login', validator(LoginSchema), authController.login);
 
 // Endpoint Terlindungi
 router.get('/me', verifyToken, authController.getProfile); 
