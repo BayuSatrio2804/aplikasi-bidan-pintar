@@ -14,6 +14,12 @@ const pemeriksaanRoutes = require('./routes/pemeriksaan.routes');
 const jadwalRoutes = require('./routes/jadwal.routes');
 const laporanRoutes = require('./routes/laporan.routes');
 const dashboardRoutes = require('./routes/dashboard.routes'); 
+const kunjunganPasienRoutes = require('./routes/kunjunganPasien.routes');
+const ancroutes = require('./routes/anc.routes');
+const kbRoutes = require('./routes/kb.routes');
+const imunisasiRoutes = require('./routes/imunisasi.routes');
+const persalinanRoutes = require('./routes/persalinan.routes');
+
 
 // --- Gunakan Rute ---
 // Server URL di API spec: https://api.bidan-digital.com/v1
@@ -23,6 +29,11 @@ app.use('/v1/pemeriksaan', pemeriksaanRoutes);
 app.use('/v1/jadwal', jadwalRoutes);
 app.use('/v1/laporan', laporanRoutes);
 app.use('/v1/dashboard', dashboardRoutes); 
+app.use('/v1/kunjungan-pasien', kunjunganPasienRoutes);
+app.use('/v1/anc', ancroutes);
+app.use('/v1/kb', kbRoutes);
+app.use('/v1/imunisasi', imunisasiRoutes);
+app.use('/v1/persalinan', persalinanRoutes);
 
 // --- Server Listener ---
 app.listen(PORT, () => {
