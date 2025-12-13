@@ -79,6 +79,7 @@ const getRiwayatPasien = async (req, res) => {
 const getPasienById = async (req, res) => {
     const { id } = req.params;
     try {
+        console.log('Fetching pasien with ID:', id);
         const pasien = await pasienService.getPasienById(id);
         if (!pasien) {
             return res.status(404).json({ message: 'Pasien tidak ditemukan.' });
