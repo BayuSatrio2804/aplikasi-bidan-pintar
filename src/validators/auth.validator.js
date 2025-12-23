@@ -41,7 +41,10 @@ const UpdateProfileSchema = Joi.object({
     }),
     password: Joi.string().min(6).optional().messages({ 
         'string.min': 'Password minimal 6 karakter.'
-    }), 
+    }),
+    passwordLama: Joi.string().optional().messages({
+        'string.base': 'Password lama harus berupa string.'
+    })
 });
 
 // =========================================================
