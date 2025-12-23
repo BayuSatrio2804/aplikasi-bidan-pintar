@@ -102,6 +102,10 @@ const verifyOTP = async (req, res) => {
     // Verify OTP
     const verifiedUser = await authService.verifyOTP(user, otp_code);
 
+    // Record successful login
+    const ipAddress = req.ip;
+    await auditService.recordLoginAttempt(verifiedUser.id_user, verifiedUser.username, 'BERHASIL', ipAddress);
+
     // Generate JWT token
     const token = jwt.sign(
       { id: verifiedUser.id_user, username: verifiedUser.username, email: verifiedUser.email },
@@ -170,27 +174,61 @@ const getProfile = async (req, res) => {
 
 /**
  * Update user profile
- * PUT /api/auth/profile
+ * PUT /api/auth/me
  */
 const updateProfile = async (req, res) => {
-  const { password } = req.body;
+  const { password, passwordLama } = req.body;
 
   try {
     console.log('📝 Update Profile Request:');
     console.log('   User ID:', req.user.id);
-    console.log('   Request body:', { ...req.body, password: password ? '[HIDDEN]' : undefined });
+    console.log('   Request body:', { ...req.body, password: password ? '[HIDDEN]' : undefined, passwordLama: passwordLama ? '[HIDDEN]' : undefined });
 
-    let hashedPassword = null;
-
+    // If password change requested, verify old password first
     if (password) {
-      hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-      console.log('   🔐 Password will be updated');
+      // Get user WITH password hash for verification
+      const getUserWithPassword = async (id_user) => {
+        const query = `
+          SELECT id_user, nama_lengkap, username, email, password, is_verified
+          FROM users 
+          WHERE id_user = ?
+        `;
+        const [rows] = await require('../config/database').query(query, [id_user]);
+        return rows[0] || null;
+      };
+      
+      const user = await getUserWithPassword(req.user.id);
+      
+      if (!user) {
+        return notFound(res, 'Pengguna tidak ditemukan');
+      }
+
+      // Verify old password
+      if (!passwordLama) {
+        return badRequest(res, 'Password lama wajib diisi untuk mengubah password');
+      }
+
+      const passwordMatch = await bcrypt.compare(passwordLama, user.password);
+      
+      if (!passwordMatch) {
+        console.log('❌ Password lama tidak cocok');
+        return unauthorized(res, 'Password lama tidak sesuai');
+      }
+
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+      
+      const updatedData = await authService.updateProfile(req.user.id, req.body, hashedPassword);
+      console.log('✅ Profile updated successfully:', { id_user: updatedData.id_user, nama_lengkap: updatedData.nama_lengkap });
+
+      return success(res, 'Profil berhasil diperbarui', updatedData);
+    } else {
+      // No password change, just update other fields
+      const updatedData = await authService.updateProfile(req.user.id, req.body, null);
+      console.log('✅ Profile updated successfully:', { id_user: updatedData.id_user, nama_lengkap: updatedData.nama_lengkap });
+
+      return success(res, 'Profil berhasil diperbarui', updatedData);
     }
-
-    const updatedData = await authService.updateProfile(req.user.id, req.body, hashedPassword);
-    console.log('✅ Profile updated successfully:', { id_user: updatedData.id_user, nama_lengkap: updatedData.nama_lengkap });
-
-    return success(res, 'Profil berhasil diperbarui', updatedData);
   } catch (error) {
     console.error('❌ Update profile error:', error);
     if (error.code === 'ER_DUP_ENTRY') {
